@@ -2,10 +2,12 @@ package com.example.Websitepractice.appointment.pogo;
 //import org.bson.*;
 
 
+import com.example.Websitepractice.appointment.enums.Statusenum;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Document(collection="appointment")
@@ -17,15 +19,21 @@ public class Appointment {
     private String appointmentId;
     private String seatid;
     private String movieId;
-    private String status;  /// change to enum later
+    private Statusenum status;  /// change to enum later
     private Integer quantity;
     private Integer duration;
     private String starttime;
     private LocalDateTime createdDateTime;
     private LocalDateTime  updateDateTime;
-    private String storeaddress; // change to a class
-    private  String moviedetails; // change to class
+    private  MovieDetails moviedetails; // change to class
     private String orderref;
+    private String customerid;
+    private  Address address;
+    private CinemaAddress cinemaAddress;
+    private List<Seats> seats;
+    private LocalDateTime appointmentDate;
+    private String endtime;
+
 
 
     public String getId() {
@@ -92,11 +100,12 @@ public class Appointment {
         this.movieId = movieId;
     }
 
-    public String getStatus() {
+    public Statusenum getStatus() {
         return this.status;
     }
 
-    public void setStatus(final String status) {
+
+    public void setStatus(final Statusenum status) {
         this.status = status;
     }
 
@@ -125,20 +134,62 @@ public class Appointment {
     }
 
 
-    public String getStoreaddress() {
-        return this.storeaddress;
-    }
-
-    public void setStoreaddress(final String storeaddress) {
-        this.storeaddress = storeaddress;
-    }
-
-    public String getMoviedetails() {
+    public MovieDetails getMoviedetails() {
         return this.moviedetails;
     }
 
-    public void setMoviedetails(final String moviedetails) {
+    public void setMoviedetails(final MovieDetails moviedetails) {
         this.moviedetails = moviedetails;
+    }
+
+    public String getCustomerid() {
+        return this.customerid;
+    }
+
+    public void setCustomerid(final String customerid) {
+        this.customerid = customerid;
+    }
+
+    public Address getAddress() {
+        return this.address;
+    }
+
+    public void setAddress(final Address address) {
+        this.address = address;
+    }
+
+    public CinemaAddress getCinemaAddress() {
+        return this.cinemaAddress;
+    }
+
+    public void setCinemaAddress(final CinemaAddress cinemaAddress) {
+        this.cinemaAddress = cinemaAddress;
+    }
+
+
+
+    public List<Seats> getSeats() {
+        return this.seats;
+    }
+
+    public void setSeats(final List<Seats> seats) {
+        this.seats = seats;
+    }
+
+    public LocalDateTime getAppointmentDate() {
+        return this.appointmentDate;
+    }
+
+    public void setAppointmentDate(final LocalDateTime appointmentDate) {
+        this.appointmentDate = appointmentDate;
+    }
+
+    public String getEndtime() {
+        return this.endtime;
+    }
+
+    public void setEndtime(final String endtime) {
+        this.endtime = endtime;
     }
 
     @Override
@@ -146,16 +197,23 @@ public class Appointment {
         return "Appointment{" +
                 "Id='" + Id + '\'' +
                 ", cinemastoreid='" + cinemastoreid + '\'' +
+                ", appointmentId='" + appointmentId + '\'' +
                 ", seatid='" + seatid + '\'' +
                 ", movieId='" + movieId + '\'' +
-                ", status='" + status + '\'' +
+                ", status=" + status +
                 ", quantity=" + quantity +
                 ", duration=" + duration +
                 ", starttime='" + starttime + '\'' +
                 ", createdDateTime=" + createdDateTime +
                 ", updateDateTime=" + updateDateTime +
-                ", storeaddress='" + storeaddress + '\'' +
-                ", moviedetails='" + moviedetails + '\'' +
+                ", moviedetails=" + moviedetails +
+                ", orderref='" + orderref + '\'' +
+                ", customerid='" + customerid + '\'' +
+                ", address=" + address +
+                ", cinemaAddress=" + cinemaAddress +
+                ", seats=" + seats +
+                ", appointmentDate=" + appointmentDate +
+                ", endtime='" + endtime + '\'' +
                 '}';
     }
 }
