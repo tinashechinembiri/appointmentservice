@@ -14,10 +14,9 @@ import java.util.List;
 public class Appointment {
 
     @Id
-    private String Id;
+    private String id;
     private String cinemastoreid;
     private String appointmentId;
-    private String seatid;
     private String movieId;
     private Statusenum status;  /// change to enum later
     private Integer quantity;
@@ -31,18 +30,12 @@ public class Appointment {
     private  Address address;
     private CinemaAddress cinemaAddress;
     private List<Seats> seats;
-    private LocalDateTime appointmentDate;
+    private String appointmentDate;
     private String endtime;
 
 
 
-    public String getId() {
-        return this.Id;
-    }
 
-    public void setId(final String id) {
-        this.Id = id;
-    }
 
     public String getOrderref() {
         return this.orderref;
@@ -82,14 +75,6 @@ public class Appointment {
 
     public void setCinemastoreid(final String cinemastoreid) {
         this.cinemastoreid = cinemastoreid;
-    }
-
-    public String getSeatid() {
-        return this.seatid;
-    }
-
-    public void setSeatid(final String seatid) {
-        this.seatid = seatid;
     }
 
     public String getMovieId() {
@@ -176,11 +161,11 @@ public class Appointment {
         this.seats = seats;
     }
 
-    public LocalDateTime getAppointmentDate() {
+    public String getAppointmentDate() {
         return this.appointmentDate;
     }
 
-    public void setAppointmentDate(final LocalDateTime appointmentDate) {
+    public void setAppointmentDate(final String appointmentDate) {
         this.appointmentDate = appointmentDate;
     }
 
@@ -192,13 +177,20 @@ public class Appointment {
         this.endtime = endtime;
     }
 
+    public String getId() {
+        return this.id;
+    }
+
+    public void setId(final String id) {
+        this.id = id;
+    }
+
     @Override
     public String toString() {
         return "Appointment{" +
-                "Id='" + Id + '\'' +
+                "Id='" + id + '\'' +
                 ", cinemastoreid='" + cinemastoreid + '\'' +
                 ", appointmentId='" + appointmentId + '\'' +
-                ", seatid='" + seatid + '\'' +
                 ", movieId='" + movieId + '\'' +
                 ", status=" + status +
                 ", quantity=" + quantity +
@@ -216,4 +208,18 @@ public class Appointment {
                 ", endtime='" + endtime + '\'' +
                 '}';
     }
+
+
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        return super.equals(obj);
+    }
+
 }

@@ -13,6 +13,7 @@ public interface AppointmentServiceres {
     public List<Appointment> getallappointment();
     public Appointment getuserbyappid(String appId);
     public Appointment createappointment (Appointment appointment, LocalDateTime createdDateTime, LocalDateTime updateDateTime );
+    Appointment updateappointment(Appointment app, LocalDateTime updateDateTime);
 
 
 }

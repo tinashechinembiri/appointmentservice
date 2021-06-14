@@ -39,6 +39,11 @@ public class AppoitmentController {
     {
         return  service.getallappointment();
     }
+    @RequestMapping(value ="/api/getallappointment/{cinemaid}", method = RequestMethod.GET)
+    public  List<Appointment> getallapppointmentbycinema()
+    {
+        return  null;
+    }
     @RequestMapping(value ="/api/getsingleappointment/{appid}", method = RequestMethod.GET)
     public String getsingleappointment(@PathVariable String appid)
     {
@@ -51,12 +56,41 @@ public class AppoitmentController {
         Gson gson = new Gson();
         LocalDateTime createdDateTime = java.time.LocalDateTime.now();
         LocalDateTime updateDateTime = java.time.LocalDateTime.now();
+
         Appointment app = gson.fromJson(appointment, Appointment.class);
 
-       Appointment appointment1 =  service.createappointment(app,createdDateTime,updateDateTime );
-        LOG.info("appointment created");
-        return  appointment1.toString();
+        if(service.getuserbyappid(app.getAppointmentId())==null)
+        {
+            Appointment appointment1 =  service.createappointment(app,createdDateTime,updateDateTime );
+
+            LOG.info("appointment created");
+            return  appointment1.toString();
+
+        }
+
+        LOG.info("appointment can be added because already exist");
+        return "appointment exist";
     }
+    @RequestMapping(value ="/api/updateappointment", method = RequestMethod.PUT, produces = "application/json", consumes = {"application/json"})
+    public String updateappointment(@RequestBody String appointment )
+    {
+        Gson gson = new Gson();
+        LocalDateTime updateDateTime = java.time.LocalDateTime.now();
+        Appointment app = gson.fromJson(appointment, Appointment.class);
+
+        if(service.getuserbyappid(app.getAppointmentId())!=null)
+        {
+            Appointment appointment1 = service.updateappointment(app, updateDateTime);
+            return  appointment1.toString();
+        }
+        return "couldn't update ";
+    }
+    @RequestMapping(value ="/api/cancel/{appointmentId}", method = RequestMethod.PUT, produces = "application/json", consumes = {"application/json"})
+    public String cancelappointment()
+    {
+        return null;
+    }
+
 
 
 }
