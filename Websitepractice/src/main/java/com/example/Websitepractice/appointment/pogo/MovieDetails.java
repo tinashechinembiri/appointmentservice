@@ -56,4 +56,16 @@ public class MovieDetails {
     public void setDirectors(final Directors directors) {
         this.directors = directors;
     }
+
+    @Override
+    public String toString() {
+        return "MovieDetails{" +
+                "movieid='" + movieid + '\'' +
+                ", moviename='" + moviename + '\'' +
+                ", movieyear='" + movieyear + '\'' +
+                ", stars=" + stars +
+                ", writers=" + writers +
+                ", directors=" + directors +
+                '}';
+    }
 }

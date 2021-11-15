@@ -59,4 +59,16 @@ public class Address {
     public void setPhoneNo(final String phoneNo) {
         this.phoneNo = phoneNo;
     }
+
+    @Override
+    public String toString() {
+        return "Address{" +
+                "town='" + town + '\'' +
+                ", streetName='" + streetName + '\'' +
+                ", postcode='" + postcode + '\'' +
+                ", country='" + country + '\'' +
+                ", mobileNo='" + mobileNo + '\'' +
+                ", phoneNo='" + phoneNo + '\'' +
+                '}';
+    }
 }

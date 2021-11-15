@@ -33,9 +33,30 @@ public class Appointment {
     private String appointmentDate;
     private String endtime;
 
+    public Appointment() {
 
+    }
 
-
+    public Appointment(final String id, final String cinemastoreid, final String appointmentId, final String movieId, final Statusenum status, final Integer quantity, final Integer duration, final String starttime, final LocalDateTime createdDateTime, final LocalDateTime updateDateTime, final MovieDetails moviedetails, final String orderref, final String customerid, final Address address, final CinemaAddress cinemaAddress, final List<Seats> seats, final String appointmentDate, final String endtime) {
+        this.id = id;
+        this.cinemastoreid = cinemastoreid;
+        this.appointmentId = appointmentId;
+        this.movieId = movieId;
+        this.status = status;
+        this.quantity = quantity;
+        this.duration = duration;
+        this.starttime = starttime;
+        this.createdDateTime = createdDateTime;
+        this.updateDateTime = updateDateTime;
+        this.moviedetails = moviedetails;
+        this.orderref = orderref;
+        this.customerid = customerid;
+        this.address = address;
+        this.cinemaAddress = cinemaAddress;
+        this.seats = seats;
+        this.appointmentDate = appointmentDate;
+        this.endtime = endtime;
+    }
 
     public String getOrderref() {
         return this.orderref;
@@ -188,7 +209,7 @@ public class Appointment {
     @Override
     public String toString() {
         return "Appointment{" +
-                "Id='" + id + '\'' +
+                "id='" + id + '\'' +
                 ", cinemastoreid='" + cinemastoreid + '\'' +
                 ", appointmentId='" + appointmentId + '\'' +
                 ", movieId='" + movieId + '\'' +
@@ -204,12 +225,10 @@ public class Appointment {
                 ", address=" + address +
                 ", cinemaAddress=" + cinemaAddress +
                 ", seats=" + seats +
-                ", appointmentDate=" + appointmentDate +
+                ", appointmentDate='" + appointmentDate + '\'' +
                 ", endtime='" + endtime + '\'' +
                 '}';
     }
-
-
 
     @Override
     public int hashCode() {

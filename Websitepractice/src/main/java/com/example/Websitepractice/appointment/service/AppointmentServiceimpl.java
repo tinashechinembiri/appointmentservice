@@ -2,15 +2,15 @@ package com.example.Websitepractice.appointment.service;
 
 import com.example.Websitepractice.appointment.enums.Statusenum;
 import com.example.Websitepractice.appointment.pogo.*;
-import com.google.gson.Gson;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
-import javax.swing.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -19,22 +19,31 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Repository
+@Service("AppointmentServiceres")
 public class AppointmentServiceimpl implements  AppointmentServiceres{
 
+    //@Autowired
+
     @Autowired
-    private MongoTemplate mongoTemplate;
+   // @Qualifier("primaryMongoTemplate")
+    private MongoTemplate  mongoTemplate;
 
-    public Appointment createappointment (Appointment appointment, LocalDateTime createdDateTime, LocalDateTime updateDateTime )
+    private Appointment appointment1 ;
+    public AppointmentServiceimpl ()
     {
-        Appointment appointment1 = mapappointment(appointment, createdDateTime, updateDateTime);
-
-
-       // mongoTemplate.save(appointment1);
-
-        return  appointment1;
 
     }
+    public AppointmentServiceimpl(final MongoTemplate mongoTemplate) {
+        this.mongoTemplate = mongoTemplate;
+    }
+    @Override
+    public Appointment createappointment (Appointment appointment )
+    {
+        appointment1 = mapappointment(appointment);
+        mongoTemplate.save(appointment1);
+        return  appointment1;
+    }
+    @Override
     public Appointment updateappointment(Appointment app, LocalDateTime updateDateTime)
     {
         Appointment updateappintment = mapupdateappointment(app, updateDateTime);
@@ -42,9 +51,10 @@ public class AppointmentServiceimpl implements  AppointmentServiceres{
         mongoTemplate.save(updateappintment);
         return  updateappintment;
     }
+
     private Appointment mapupdateappointment(Appointment app, LocalDateTime updateDateTime)
     {
-        Appointment update =  getuserbyappid( app.getAppointmentId());
+        Appointment update =  getuserbyappid(app.getAppointmentId());
 
         if (app.getAppointmentDate()!=null && app.getStarttime()!=null)
         {
@@ -55,41 +65,42 @@ public class AppointmentServiceimpl implements  AppointmentServiceres{
             update.setAddress( mapaddress(app));
             update.setSeats( updateseats(app, update));
         }
-
      return  update;
     }
-
+    @Override
     public  Appointment Cancelappointment (Appointment app, LocalDateTime updateDateTime)
     {
         Appointment cancel =  getuserbyappid( app.getAppointmentId());
-
-        cancel.setUpdateDateTime(updateDateTime);
-        cancel.setStatus(Statusenum.CANCELLED);
-        mongoTemplate.save(cancel);
+        if (Statusenum.BOOKED.equals(cancel.getStatus()) || Statusenum.RESERVED.equals(cancel.getStatus())) {
+            cancel.setUpdateDateTime(updateDateTime);
+            cancel.setStatus(Statusenum.CANCELLED);
+            mongoTemplate.save(cancel);
+        }
         return  cancel;
-
     }
 
+    @Override
     public List<Appointment> getallappointment()
     {
 
         return mongoTemplate.findAll(Appointment.class) ;
     }
-
+    @Override
     public Appointment getuserbyappid(String appId)
     {
         Query query = new Query();
         query.addCriteria(Criteria.where("appointmentId").is(appId));
         return  mongoTemplate.findOne(query,Appointment.class);
     }
-    private Appointment mapappointment(Appointment appointment, LocalDateTime createdDateTime, LocalDateTime updateDateTime)
+    private Appointment mapappointment(Appointment appointment)
     {
+        LocalDateTime createdDateTime = java.time.LocalDateTime.now();
+        LocalDateTime updateDateTime = java.time.LocalDateTime.now();
         Appointment createappointment = new Appointment();
 
         createappointment.setCreatedDateTime(createdDateTime);
         createappointment.setUpdateDateTime(updateDateTime);
 
-       //reateappointment.setId(new ObjectId().toHexString());
         createappointment.setAddress(mapaddress(appointment));
         createappointment.setMoviedetails(mapmovies(appointment));
         createappointment.setSeats(mapseats(appointment));
@@ -112,14 +123,12 @@ public class AppointmentServiceimpl implements  AppointmentServiceres{
 
         Address addaddress = new Address();
         if (address.getAddress()!=null) {
-
             addaddress.setCountry(address.getAddress().getCountry());
             addaddress.setStreetName(address.getAddress().getStreetName());
             addaddress.setMobileNo(address.getAddress().getMobileNo());
             addaddress.setPhoneNo(address.getAddress().getPhoneNo());
             addaddress.setPostcode(address.getAddress().getPostcode());
         }
-
         return addaddress;
     }
     private MovieDetails mapmovies(Appointment movieDetails)
@@ -145,15 +154,12 @@ public class AppointmentServiceimpl implements  AppointmentServiceres{
                 e.printStackTrace();
             }
         }
-
-
         return  date.toString();
     }
     private List<Seats> mapseats(Appointment seats)
     {
         List<Seats> seats1 = new ArrayList<>();
         seats1.addAll(seats.getSeats());
-
         return  seats1;
     }
     private List<Seats> updateseats(Appointment app, Appointment update )
@@ -173,7 +179,6 @@ public class AppointmentServiceimpl implements  AppointmentServiceres{
             {
                 seats1.add(i);
             }
-
         }
         return  seats1;
     }
@@ -190,7 +195,13 @@ public class AppointmentServiceimpl implements  AppointmentServiceres{
             cinemaAddress.setStreetName(appointment.getCinemaAddress().getStreetName());
             cinemaAddress.setTown(appointment.getCinemaAddress().getTown());
         }
-
         return cinemaAddress;
+    }
+
+    @Override
+    public String toString() {
+        return "AppointmentServiceimpl{" +
+                "mongoTemplate=" + mongoTemplate +
+                '}';
     }
 }

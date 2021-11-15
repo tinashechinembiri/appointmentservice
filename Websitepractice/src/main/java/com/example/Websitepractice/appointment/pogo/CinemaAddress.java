@@ -73,4 +73,18 @@ public class CinemaAddress {
     public void setPhone(final String phone) {
         this.phone = phone;
     }
+
+    @Override
+    public String toString() {
+        return "CinemaAddress{" +
+                "name='" + name + '\'' +
+                ", town='" + town + '\'' +
+                ", streetName='" + streetName + '\'' +
+                ", postCode='" + postCode + '\'' +
+                ", country='" + country + '\'' +
+                ", county='" + county + '\'' +
+                ", mobile='" + mobile + '\'' +
+                ", phone='" + phone + '\'' +
+                '}';
+    }
 }
