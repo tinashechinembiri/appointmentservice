@@ -8,6 +8,7 @@ public class Seats {
     private String seatid;
     private String seatNumber;
     private Seatenum seatType;
+    private Boolean seatavailable;
 
     public String getSeatid() {
         return this.seatid;
@@ -31,6 +32,14 @@ public class Seats {
 
     public void setSeatType(final Seatenum seatType) {
         this.seatType = seatType;
+    }
+
+    public Boolean getSeatavailable() {
+        return this.seatavailable;
+    }
+
+    public void setSeatavailable(final Boolean seatavailable) {
+        this.seatavailable = seatavailable;
     }
 
     @Override
