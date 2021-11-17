@@ -43,20 +43,14 @@ public class AppointmentServiceimplTest {
     private  static  final  String appointmentid = "74398";
 
     @InjectMocks
-   // @Autowired
     private AppointmentServiceimpl appointmentServiceres;
     @Mock
     private MongoTemplate mongoTemplate;
     @Rule
     public MockitoRule rule = MockitoJUnit.rule().strictness(Strictness.LENIENT);
 
-    @Before
-    public void setUp()
-    {
 
-    }
-
-
+    @Test
     public void test_create()
     {
 

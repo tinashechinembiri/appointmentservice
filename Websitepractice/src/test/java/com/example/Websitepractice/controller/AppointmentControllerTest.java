@@ -46,29 +46,18 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.assertj.core.api.Assertions.assertThat;
 
-//@ExtendWith(MockitoExtension.class)
-//@RunWith(MockitoJUnitRunner.class)
-//@WebAppConfiguration
-//@RunWith(SpringJUnit4ClassRunner.class)
-//@RunWith(MockitoJUnitRunner.Silent.class)
 @RunWith(SpringRunner.class)
 @WebMvcTest(AppoitmentController.class)
 public class AppointmentControllerTest {
     private  static  final  String appointmentid = "74398";
     LocalDateTime today;
-  //  @Autowired
-    //@MockBean
     @Mock
     private AppointmentServiceres appointmentServiceres;
     @MockBean
     MongoTemplate mongoTemplate;
     private static ObjectMapper mapper = new ObjectMapper();
-    //@Spy
     @InjectMocks
-
     private AppoitmentController appoitmentController;
-
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -84,7 +73,6 @@ public class AppointmentControllerTest {
     }
 
     @Test
-    @Disabled
     public void testgetappointment()
     {
         // given
@@ -100,7 +88,6 @@ public class AppointmentControllerTest {
 
     }
     @Test
- //  @Disabled
     public void testcreateappointment() throws Exception {
         //given
         String json = "{\"cinemastoreid\":\"786\",\"appointmentId\":\"74098\",\"seatid\":\"B1\",\"movieId\":\"M745\",\"quantity\":1,\"duration\":2,\"starttime\":\"12:00\",\"moviedetails\":{},\"orderref\":\"\",\"customerid\":\"89741\",\"address\":{\"streetName\":\"North\",\"town\":\"Greater London\",\"postcode\":\"UB7 9JB\",\"country\":\"England\",\"mobileNo\":\"01632960188\",\"phoneNo\":\"01632960196\"},\"cinemaAddress\":{\"streetName\":\"North\",\"town\":\"Greater London\",\"postCode\":\"UB7 9JB\",\"country\":\"England\",\"mobile\":\"01632960188\",\"phone\":\"01632960196\",\"county\":\"London\"},\"seats\":[{\"seatid\":\"B1\",\"seatNumber\":\"B12\"}],\"appointmentDate\":\"2025-06-12T12:17:21\"}";
@@ -118,7 +105,7 @@ public class AppointmentControllerTest {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED.value());
 
     }
-
+    @Test
     public void testcreateappointment_fail() throws Exception {
         Appointment appointment = new Appointment(); //appointmentSet(json);
         appointment.setAppointmentId(appointmentid);
@@ -140,12 +127,10 @@ public class AppointmentControllerTest {
                         content(mapper.writeValueAsString(appointment)).accept(MediaType.APPLICATION_JSON )).andReturn().getResponse();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.ACCEPTED.value());
     }
-
     private Appointment appointmentSet(String appointment)  {
         Appointment app;
         Gson gson = new Gson();
         app  = gson.fromJson(appointment, Appointment.class);
-
         return app;
     }
 
