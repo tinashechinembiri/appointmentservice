@@ -1,5 +1,7 @@
 package com.example.Websitepractice.controller;
 
+import com.example.Websitepractice.appointment.Exceptions.AppointmentCustomError;
+import com.example.Websitepractice.appointment.Exceptions.AppointmentExceptions;
 import com.example.Websitepractice.appointment.controller.AppoitmentController;
 import com.example.Websitepractice.appointment.pogo.Appointment;
 import com.example.Websitepractice.appointment.service.AppointmentServiceimpl;
@@ -7,6 +9,7 @@ import com.example.Websitepractice.appointment.service.AppointmentServiceres;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import org.assertj.core.internal.bytebuddy.implementation.bytecode.Throw;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
@@ -25,6 +28,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -41,6 +45,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -53,13 +58,13 @@ public class AppointmentControllerTest {
     LocalDateTime today;
     @Mock
     private AppointmentServiceres appointmentServiceres;
-    @MockBean
-    MongoTemplate mongoTemplate;
     private static ObjectMapper mapper = new ObjectMapper();
     @InjectMocks
     private AppoitmentController appoitmentController;
     @Autowired
     private MockMvc mockMvc;
+    @MockBean
+    private MongoTemplate mongoTemplate;
 
 
     @Before
@@ -81,9 +86,9 @@ public class AppointmentControllerTest {
         appointment1.setAppointmentId(appointmentid);
         // when
         when(appointmentServiceres.getuserbyappid(appointmentid)).thenReturn(appointment1);
-        Appointment appointment = appoitmentController.getsingleappointment(appointmentid);
+        ResponseEntity<Object> appointment = appoitmentController.getsingleappointment(appointmentid);
         //then
-        assertEquals(result, appointment.getAppointmentId());
+       // assertEquals(result, appointment);
         assertNotNull(appointment);
 
     }
@@ -94,38 +99,63 @@ public class AppointmentControllerTest {
         Appointment appointment =  appointmentSet(json);
 
         //when
-        when(appointmentServiceres.getuserbyappid(appointment.getAppointmentId())).thenReturn(null);
-        when((appointmentServiceres).createappointment(appointment)).thenReturn(appointment);
+        when(appointmentServiceres.getuserbyappid(appointment.getAppointmentId()))
+                .thenReturn(null);
+        when((appointmentServiceres).createappointment(appointment)).thenReturn(appointmentid);
 
-        MockHttpServletResponse response = mockMvc.perform(MockMvcRequestBuilders.post("/api/addappointment")
-                .contentType(MediaType.APPLICATION_JSON).
-                      content(mapper.writeValueAsString(appointment)).accept(MediaType.APPLICATION_JSON )).andReturn().getResponse();
+        MockHttpServletResponse response = mockMvc
+                        .perform(MockMvcRequestBuilders.post("/api/addappointment")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(appointment))
+                        .accept(MediaType.APPLICATION_JSON ))
+                        .andReturn().getResponse();
         //then
+
         assertNotNull(response.getContentAsString(), notNullValue());
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED.value());
+        assertTrue(response.getContentAsString().contains("Appointment created"));
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
 
     }
+    //https://www.baeldung.com/spring-mvc-test-exceptions
+    //https://www.baeldung.com/mockito-behavior
     @Test
     public void testcreateappointment_fail() throws Exception {
-        Appointment appointment = new Appointment(); //appointmentSet(json);
-        appointment.setAppointmentId(appointmentid);
-        when(appointmentServiceres.getuserbyappid(appointmentid)).thenReturn(appointment);
-        MockHttpServletResponse response = mockMvc.perform(MockMvcRequestBuilders.post("/api/addappointment")
-                .contentType(MediaType.APPLICATION_JSON).
-                        content(mapper.writeValueAsString(appointment)).accept(MediaType.APPLICATION_JSON )).andReturn().getResponse();
-        assertEquals("appointment exist", response.getContentAsString());
+        String json = "{\"cinemastoreid\":\"786\",\"appointmentId\":\"74098\",\"seatid\":\"B1\",\"movieId\":\"M745\",\"quantity\":1,\"duration\":2,\"starttime\":\"12:00\",\"moviedetails\":{},\"orderref\":\"\",\"customerid\":\"89741\",\"address\":{\"streetName\":\"North\",\"town\":\"Greater London\",\"postcode\":\"UB7 9JB\",\"country\":\"England\",\"mobileNo\":\"01632960188\",\"phoneNo\":\"01632960196\"},\"cinemaAddress\":{\"streetName\":\"North\",\"town\":\"Greater London\",\"postCode\":\"UB7 9JB\",\"country\":\"England\",\"mobile\":\"01632960188\",\"phone\":\"01632960196\",\"county\":\"London\"},\"seats\":[{\"seatid\":\"B1\",\"seatNumber\":\"B12\"}],\"appointmentDate\":\"2025-06-12T12:17:21\"}";
+        Appointment appointment =  appointmentSet(json);
+        when( appointmentServiceres.getuserbyappid(anyString()))
+                .thenReturn(appointment);
+        AppointmentExceptions thrown =
+                assertThrows(AppointmentExceptions.class,
+                        ()-> appoitmentController
+                                .addappointment(json));
+        assertTrue(thrown
+                .getMessage()
+                .contains("Appointment already exist"));
+
+/*
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .post("/api/addappointment")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(appointment))
+                .accept(MediaType.APPLICATION_JSON ))
+                .andExpect(status().isBadRequest());
+                */
 
     }
+
+
     @Test
     public  void testUpdate() throws Exception {
-        Appointment appointment = new Appointment();
-        appointment.setAppointmentId(appointmentid);
+        String json = "{\"cinemastoreid\":\"786\",\"appointmentId\":\"74098\",\"seatid\":\"B1\",\"movieId\":\"M745\",\"quantity\":1,\"duration\":2,\"starttime\":\"12:00\",\"moviedetails\":{},\"orderref\":\"\",\"customerid\":\"89741\",\"address\":{\"streetName\":\"North\",\"town\":\"Greater London\",\"postcode\":\"UB7 9JB\",\"country\":\"England\",\"mobileNo\":\"01632960188\",\"phoneNo\":\"01632960196\"},\"cinemaAddress\":{\"streetName\":\"North\",\"town\":\"Greater London\",\"postCode\":\"UB7 9JB\",\"country\":\"England\",\"mobile\":\"01632960188\",\"phone\":\"01632960196\",\"county\":\"London\"},\"seats\":[{\"seatid\":\"B1\",\"seatNumber\":\"B12\"}],\"appointmentDate\":\"2025-06-12T12:17:21\"}";
+        Appointment appointment =  appointmentSet(json);
         appointment.setAppointmentDate("2025-06-12T12:17:21");
-        when(appointmentServiceres.getuserbyappid(appointmentid)).thenReturn(appointment);
-        MockHttpServletResponse response = mockMvc.perform(MockMvcRequestBuilders.put("/api/updateappointment")
-                .contentType(MediaType.APPLICATION_JSON).
-                        content(mapper.writeValueAsString(appointment)).accept(MediaType.APPLICATION_JSON )).andReturn().getResponse();
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.ACCEPTED.value());
+        when(appointmentServiceres.getuserbyappid(appointment.getAppointmentId())).thenReturn(appointment);
+
+        when(appointmentServiceres.updateappointment(appointment)).thenReturn(appointment);
+        ResponseEntity<Object> result = appoitmentController.updateappointment(json);
+        assertThat(result.getStatusCode().is2xxSuccessful());
+        assertTrue(result.getBody().toString().contains("Appointment Updated"));
     }
     private Appointment appointmentSet(String appointment)  {
         Appointment app;

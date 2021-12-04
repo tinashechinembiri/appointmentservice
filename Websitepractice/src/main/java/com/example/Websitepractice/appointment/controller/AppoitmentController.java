@@ -1,4 +1,7 @@
 package com.example.Websitepractice.appointment.controller;
+import com.example.Websitepractice.appointment.Exceptions.AppointmentCustomError;
+import com.example.Websitepractice.appointment.Exceptions.AppointmentExceptions;
+import com.example.Websitepractice.appointment.Response.ResponseHandler;
 import com.example.Websitepractice.appointment.pogo.Appointment;
 import com.example.Websitepractice.appointment.service.AppointmentServiceres;
 import com.example.Websitepractice.appointment.service.UserRepository;
@@ -11,13 +14,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 
-
+//https://reflectoring.io/spring-boot-exception-handling/
+//https://auth0.com/blog/get-started-with-custom-error-handling-in-spring-boot-java/
+//https://howtodoinjava.com/spring-boot2/spring-rest-request-validation/
 //@RequestMapping(value = "/")
 @RestController
 public class AppoitmentController {
@@ -50,15 +56,17 @@ public class AppoitmentController {
         return  null;
     }
     @RequestMapping(value ="/api/getsingleappointment/{appid}", method = RequestMethod.GET)
-    public Appointment getsingleappointment(@PathVariable final String appid)
+    public ResponseEntity<Object> getsingleappointment(@PathVariable final String appid)
     {
 
-        return this.service.getuserbyappid(appid) ;
+        Appointment appointment =  this.service.getuserbyappid(appid) ;
+
+        return ResponseHandler.createResponse("Appointment found ", HttpStatus.OK, appointment);
     }
 
     @RequestMapping(value = "/api/addappointment", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
-    public String addappointment(@RequestBody final String appointment )
+    public ResponseEntity<Object> addappointment(@RequestBody final String appointment )
     {
 
         final Gson gson = new Gson();
@@ -67,19 +75,16 @@ public class AppoitmentController {
 
         if(service.getuserbyappid(app.getAppointmentId())==null)
         {
-           Appointment appointment1 =  service.createappointment(app);
-
+            this.LOG.info("Appointment has been checked that it doesn't exist " + app.getAppointmentId());
+             String appointment1 =  service.createappointment(app);
             this.LOG.info("appointment created" + app.getAppointmentId());
-            return  "appointment created";
-
+            return  ResponseHandler.createResponse("Appointment created", HttpStatus.OK, appointment1);
         }
-
-        this.LOG.info("appointment can be added because already exist"+ app.getAppointmentId());
-        return "appointment exist";
+        throw new AppointmentExceptions("Appointment already exist");
     }
     @RequestMapping(value = "/api/updateappointment", method = RequestMethod.PUT, produces = "application/json", consumes = "application/json")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public String updateappointment(@RequestBody final String appointment )
+    public ResponseEntity<Object> updateappointment(@RequestBody final String appointment )
     {
         final Gson gson = new Gson();
         final LocalDateTime updateDateTime = java.time.LocalDateTime.now();
@@ -87,10 +92,10 @@ public class AppoitmentController {
 
         if(service.getuserbyappid(app.getAppointmentId())!=null)
         {
-            service.updateappointment(app, updateDateTime);
-            return  "appointment Updated";
+            service.updateappointment(app);
+            return ResponseHandler.createResponse("Appointment Updated", HttpStatus.OK, null);
         }
-        return "couldn't update ";
+        throw new AppointmentCustomError(HttpStatus.NOT_FOUND, "Appointment doesn't exist");
     }
     @RequestMapping(value = "/api/cancel/{appointmentId}", method = RequestMethod.PUT, produces = "application/json", consumes = "application/json")
     public String cancelappointment()
