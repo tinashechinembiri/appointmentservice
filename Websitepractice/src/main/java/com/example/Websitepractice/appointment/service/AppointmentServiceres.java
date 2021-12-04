@@ -9,8 +9,8 @@ public interface AppointmentServiceres {
 
      List<Appointment> getallappointment();
      Appointment getuserbyappid(String appId);
-     Appointment createappointment (Appointment appointment);
-    Appointment updateappointment(Appointment app, LocalDateTime updateDateTime);
+     String createappointment (Appointment appointment);
+    Appointment updateappointment(Appointment app);
     Appointment Cancelappointment (Appointment app, LocalDateTime updateDateTime);
 
 

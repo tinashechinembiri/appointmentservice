@@ -1,7 +1,10 @@
 package com.example.Websitepractice.appointment.service;
 
+import com.example.Websitepractice.appointment.Exceptions.AppointmentExceptions;
 import com.example.Websitepractice.appointment.enums.Statusenum;
 import com.example.Websitepractice.appointment.pogo.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -13,22 +16,19 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service("AppointmentServiceres")
 public class AppointmentServiceimpl implements  AppointmentServiceres{
-
+//https://github.com/anirban99/spring-boot-appointment/blob/master/src/main/java/com/example/appointment/service/AppointmentServiceImplementation.java
     //@Autowired
 
     @Autowired
    // @Qualifier("primaryMongoTemplate")
     private MongoTemplate  mongoTemplate;
+    final Gson gson = new Gson();
 
-    private Appointment appointment1 ;
     public AppointmentServiceimpl ()
     {
 
@@ -37,15 +37,19 @@ public class AppointmentServiceimpl implements  AppointmentServiceres{
         this.mongoTemplate = mongoTemplate;
     }
     @Override
-    public Appointment createappointment (Appointment appointment )
+    public String createappointment (Appointment appointment )
     {
-        appointment1 = mapappointment(appointment);
+        Map<String,String> response = new HashMap<String,String>();
+         Appointment appointment1 = mapappointment(appointment);
         mongoTemplate.save(appointment1);
-        return  appointment1;
+        response.put("_Id", appointment1.getId());
+        String id =  gson.toJson(response);
+        return  id ;
     }
     @Override
-    public Appointment updateappointment(Appointment app, LocalDateTime updateDateTime)
+    public Appointment updateappointment(Appointment app)
     {
+        final LocalDateTime updateDateTime = java.time.LocalDateTime.now();
         Appointment updateappintment = mapupdateappointment(app, updateDateTime);
 
         mongoTemplate.save(updateappintment);
@@ -116,6 +120,7 @@ public class AppointmentServiceimpl implements  AppointmentServiceres{
         createappointment.setDuration(appointment.getDuration());
         createappointment.setEndtime(appointment.getEndtime());
 
+
         return  createappointment;
     }
     private Address mapaddress(Appointment address)
@@ -143,17 +148,15 @@ public class AppointmentServiceimpl implements  AppointmentServiceres{
         return movie;
     }
     private String checkdate(String bookingtime)  {
+        System.out.println(bookingtime);
         LocalDateTime date = LocalDateTime.parse(bookingtime,
                 DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH));
 
         if (date.toLocalDate().isBefore(java.time.LocalDate.now()))
         {
-            try {
-                throw new Exception("selected date is wrong ");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            throw new AppointmentExceptions("The date supplied is not valid");
         }
+
         return  date.toString();
     }
     private List<Seats> mapseats(Appointment seats)

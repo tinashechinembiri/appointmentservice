@@ -61,7 +61,7 @@ public class AppointmentServiceimplTest {
         seats.setSeatid("b1");
         seat.add(seats);
         Appointment newappointment = new Appointment();
-        newappointment.setAppointmentId("12345");
+        newappointment.setId("12345");
         newappointment.setMoviedetails(movieDetails);
         newappointment.setAppointmentDate("2025-06-12T12:17:21");
         newappointment.setSeats(seat);
@@ -70,8 +70,8 @@ public class AppointmentServiceimplTest {
         newappointment.setAddress(address);
        // when(appointmentServiceres.)
         when(mongoTemplate.save(newappointment)).thenReturn(newappointment);
-        Appointment created = appointmentServiceres.createappointment(newappointment);
-        assertEquals(created.getAppointmentId(), "12345");
+        String created = appointmentServiceres.createappointment(newappointment);
+        assertEquals(created, "12345");
 
     }
     @Test
